@@ -3,7 +3,7 @@ For OCN682 AI Community Data Sprint Group Project
 
 ####  Members
 Gabby
-Tim
+Timo
 Yang 
 Manōʻike
 

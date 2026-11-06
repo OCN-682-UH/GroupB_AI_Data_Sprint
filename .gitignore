@@ -1,0 +1,14 @@
+# Raw OPIHI workbooks contain student, teacher and contact names:
+# they are NOT published. Get them from Dr. Philippoff and put them in data/raw/.
+data/raw/*
+!data/raw/README.md
+
+# Code -> real-name key for schools / teams (goes to Dr. Philippoff only)
+data/private/
+
+.Rproj.user/
+.Rhistory
+.RData
+*_files/
+.quarto/
+.DS_Store

@@ -1,0 +1,364 @@
+# 01_build_master.R ---------------------------------------------------------
+# Build the clean OPIHI sampling-effort master files from the raw workbooks.
+# Run from the project root:   Rscript scripts/01_build_master.R
+#
+# Inputs  : data/raw/*.xlsx (never edited), data/lookup/site_lookup.csv
+# Outputs : data/clean/opihi_surveys_effort.csv   one row per survey (field trip)
+#           data/clean/opihi_quadrats_master.csv  one row per quadrat
+#           data/clean/exclusions_log.csv         every record left out + reason
+#           data/clean/duplicates_log.csv         every duplicate removed + kept copy
+#           data/clean/crosscheck_compiled.csv    raw-derived vs compiled quadrat counts
+#           data/private/id_key.csv               codes -> real names (NOT for GitHub)
+
+suppressPackageStartupMessages({
+  source("R/import_long.R")     # also loads import_wide.R
+  source("R/clean_helpers.R")
+  source("R/check_effort.R")
+  library(readr)
+})
+
+raw_dir <- "data/raw"
+dir.create("data/clean", showWarnings = FALSE)
+dir.create("data/private", showWarnings = FALSE)
+exclusions <- list()
+log_excl <- function(df, reason) {
+  exclusions[[length(exclusions) + 1]] <<- df |> mutate(reason = reason, .before = 1)
+}
+
+# ---------------------------------------------------------------------------
+# 1. 2004-2020 wide workbooks (raw quadrat-level data)
+# ---------------------------------------------------------------------------
+wide <- import_all_wide(raw_dir)
+
+trips_w <- wide$trips |>
+  standardise_site() |>
+  mutate(source_ref = paste0("block@col", source_block))
+
+# blocks with quadrat data but no date AND no site cannot be placed anywhere
+orphan_w <- trips_w |> filter(is.na(date) & is.na(site_raw) & is.na(latitude))
+log_excl(orphan_w |> transmute(source_file, source_ref, date, site_raw,
+                               detail = "quadrat block with no trip metadata (date cell '???????')"),
+         "cannot be linked to a survey")
+trips_w <- trips_w |> anti_join(orphan_w, by = c("source_file", "source_block"))
+
+quad_w <- wide$quadrats |>
+  filter(has_data) |>
+  group_by(source_file, source_block) |>
+  summarise(n_quadrats_raw = n(),
+            n_transects_observed = n_distinct(transect),
+            .groups = "drop")
+
+trips_w <- trips_w |>
+  left_join(quad_w, by = c("source_file", "source_block")) |>
+  mutate(link_key = paste(source_file, source_block, sep = "|"))
+
+# ---------------------------------------------------------------------------
+# 2. Compiled trip-level sheet ("OPIHI Data - Reformated.xlsx", Totals_NO_Excl)
+#    It summarises the SAME 2004-2020 trips, so it is used to (a) recover lost
+#    site names, (b) cross-check our quadrat counts and (c) add trips that have
+#    no raw yearly block.
+# ---------------------------------------------------------------------------
+comp <- suppressMessages(read_excel(file.path(raw_dir, "OPIHI Data - Reformated.xlsx"),
+                                    sheet = "Totals_NO_Excl", skip = 3, col_types = "text")) |>
+  select(1:17) |>
+  rename(date_raw = Date, site_raw = Location, compiled_id = `df_###`,
+         school_raw = School, n_quadrats_compiled = `Actual Quadrats sampled`,
+         excluded_transects_note = `Excluding Transects/reason`, compiled_notes = Notes) |>
+  filter(!is.na(date_raw)) |>
+  mutate(date = excel_to_date(date_raw),
+         n_quadrats_compiled = suppressWarnings(as.numeric(n_quadrats_compiled)),
+         n_transects_recorded = suppressWarnings(as.numeric(`Num of T`)),
+         quad_per_transect_recorded = suppressWarnings(as.numeric(`Num of Quad/T`)),
+         transect_length_m = `Transect Length`, point_spacing_raw = `Pt Spacing`,
+         latitude = suppressWarnings(as.numeric(latitude)),
+         longitude = suppressWarnings(as.numeric(longitude)),
+         start_time = excel_to_hhmm(`Start Time`), stop_time = excel_to_hhmm(`Stop Time`),
+         school_key = str_to_lower(str_squish(school_raw))) |>
+  standardise_site()
+
+trips_w <- trips_w |> mutate(school_key = str_to_lower(str_squish(school_raw)))
+
+# --- 2a. recover site names lost in the raw file (mostly 2019) --------------
+# Rule 1: the compiled sheet has exactly one trip with the same date + school
+#         -> take its site.
+# Rule 2: otherwise, nearest known site (median coordinates of that site in
+#         all other trips) if it is within 1 km.
+# Anything still unmatched stays NA and is flagged by check_effort().
+comp_site <- comp |>
+  filter(!is.na(site_std)) |>
+  group_by(date, school_key) |>
+  filter(n_distinct(site_std) == 1) |>
+  summarise(site_from_compiled = first(site_std), .groups = "drop")
+
+site_coords <- bind_rows(trips_w, comp) |>
+  filter(!is.na(site_std), !is.na(latitude), !is.na(longitude)) |>
+  group_by(site_std) |>
+  summarise(lat0 = median(latitude), lon0 = median(longitude), .groups = "drop")
+
+nearest_site <- function(lat, lon, max_km = 1) {
+  map2_chr(lat, lon, function(a, b) {
+    if (is.na(a) || is.na(b)) return(NA_character_)
+    km <- 111.2 * sqrt((site_coords$lat0 - a)^2 +
+                       ((site_coords$lon0 - b) * cos(a * pi / 180))^2)
+    if (min(km) <= max_km) site_coords$site_std[which.min(km)] else NA_character_
+  })
+}
+
+trips_w <- trips_w |>
+  left_join(comp_site, by = c("date", "school_key")) |>
+  mutate(
+    site_from_coords = if_else(is.na(site_std), nearest_site(latitude, longitude), NA_character_),
+    site_recovery = case_when(!is.na(site_std)           ~ "as recorded",
+                              !is.na(site_from_compiled) ~ "recovered: compiled sheet (date + school)",
+                              !is.na(site_from_coords)   ~ "recovered: nearest site by coordinates",
+                              TRUE                       ~ "missing"),
+    site_std = coalesce(site_std, site_from_compiled, site_from_coords),
+    site_confidence = if_else(site_recovery == "as recorded", site_confidence, "recovered")
+  ) |>
+  select(-site_from_compiled, -site_from_coords)
+
+# --- 2b. duplicate blocks inside / across the yearly files -------------------
+# same date, site and school AND the same number of quadrats -> keep the first
+trips_w <- trips_w |>
+  arrange(date, site_std, school_raw, source_file, source_block) |>
+  group_by(date, site_std, school_raw, n_quadrats_raw) |>
+  mutate(dup_rank = if_else(is.na(site_std), 1L, row_number())) |>
+  ungroup()
+dups_w <- trips_w |> filter(dup_rank > 1)
+trips_w <- trips_w |> filter(dup_rank == 1) |> select(-dup_rank)
+
+# --- 2c. match compiled rows to raw trips on date + site + school -----------
+comp_match <- comp |>
+  select(date, site_std, school_key, compiled_id, n_quadrats_compiled,
+         excluded_transects_note) |>
+  distinct(date, site_std, school_key, .keep_all = TRUE)
+
+trips_w <- trips_w |> left_join(comp_match, by = c("date", "site_std", "school_key"))
+
+crosscheck <- trips_w |>
+  filter(!is.na(compiled_id)) |>
+  transmute(date, site_std, source_file, source_ref, compiled_id,
+            n_quadrats_raw, n_quadrats_compiled,
+            difference = n_quadrats_raw - n_quadrats_compiled,
+            excluded_transects_note)
+
+comp_only <- comp |>
+  anti_join(trips_w, by = c("date", "site_std", "school_key")) |>
+  mutate(source_file = "OPIHI Data - Reformated.xlsx",
+         source_ref = paste0("Totals_NO_Excl id ", compiled_id))
+
+# ---------------------------------------------------------------------------
+# 3. 2024-2026 long workbooks
+# ---------------------------------------------------------------------------
+long <- import_all_long(raw_dir)
+
+q_long <- long$quadrats |> standardise_site()
+log_excl(q_long |> filter(row_status != "ok") |>
+           transmute(source_file, source_ref = paste0("Quadrat PtCounts row ", raw_row),
+                     date, site_raw, detail = row_status),
+         "quadrat row not usable (see detail)")
+q_long <- q_long |> filter(row_status == "ok")
+
+# Duplicate quadrats across files
+#  (a) exact copies: same date, site, data-entry person, transect, position and
+#      the full set of taxon counts (taxa_signature)
+#  (b) "Copy of ..." workbooks: a row whose date/site/person/transect/position
+#      also exists in the original workbook is the SAME quadrat even if a few
+#      taxon columns were renamed or edited -> keep the original row
+pos_key <- c("date", "site_std", "team_raw", "transect", "point_m")
+q_long <- q_long |>
+  mutate(file_priority = if_else(str_detect(source_file, "^Copy of"), 2L, 1L)) |>
+  arrange(file_priority, source_file, raw_row) |>
+  group_by(across(all_of(c(pos_key, "taxa_signature")))) |>
+  mutate(dup_rank = row_number(),
+         kept_ref = paste0(first(source_file), " row ", first(raw_row)),
+         dup_type = "exact copy") |>
+  ungroup()
+orig_keys <- q_long |> filter(file_priority == 1, dup_rank == 1) |>
+  group_by(across(all_of(pos_key))) |>
+  summarise(orig_ref = paste0(first(source_file), " row ", first(raw_row)), .groups = "drop")
+q_long <- q_long |>
+  left_join(orig_keys, by = pos_key) |>
+  mutate(near_dup = file_priority == 2 & dup_rank == 1 & !is.na(orig_ref),
+         dup_type = if_else(near_dup, "same quadrat in 'Copy of' file (counts/column names differ)", dup_type),
+         kept_ref = if_else(near_dup, orig_ref, kept_ref),
+         dup_rank = if_else(near_dup, 2L, dup_rank)) |>
+  select(-orig_ref, -near_dup)
+dups_long <- q_long |> filter(dup_rank > 1)
+q_long <- q_long |> filter(dup_rank == 1)
+
+# Metadata: one row per team. Remove exact repeats, then summarise per trip.
+meta <- long$metadata |> standardise_site()
+log_excl(meta |> filter(is.na(date)) |>
+           transmute(source_file, source_ref = "Metadata", date, site_raw,
+                     detail = "metadata row without a date"),
+         "metadata row without a date")
+meta <- meta |>
+  filter(!is.na(date)) |>
+  distinct(date, team_raw, start_time, n_transects_recorded,
+           quad_per_transect_raw, .keep_all = TRUE)
+
+meta_trip <- meta |>
+  group_by(date, site_std) |>
+  summarise(n_meta_rows = n(),
+            n_transects_recorded = median(n_transects_recorded, na.rm = TRUE),
+            quad_per_transect_recorded = median(quad_per_transect_recorded, na.rm = TRUE),
+            transect_length_m = as.character(median(transect_length_m, na.rm = TRUE)),
+            start_time = suppressWarnings(min(start_time, na.rm = TRUE)),
+            stop_time  = suppressWarnings(max(stop_time, na.rm = TRUE)),
+            meta_sources = paste(unique(source_file), collapse = "; "),
+            .groups = "drop") |>
+  mutate(across(c(n_transects_recorded, quad_per_transect_recorded),
+                ~ if_else(is.nan(.x), NA_real_, .x)))
+
+trips_long <- q_long |>
+  group_by(date, site_std) |>
+  summarise(site_raw = first(site_raw), site_confidence = first(site_confidence),
+            source_file = paste(unique(source_file), collapse = "; "),
+            n_quadrats_raw = n(),
+            n_transects_observed = n_distinct(transect),
+            n_teams = n_distinct(team_raw),
+            .groups = "drop") |>
+  full_join(meta_trip, by = c("date", "site_std")) |>
+  mutate(source_file = coalesce(source_file, meta_sources),
+         source_ref = "Quadrat PtCounts + Metadata",
+         link_key = paste("LT", date, site_std, sep = "|"))
+
+# ---------------------------------------------------------------------------
+# 4. Class field-study worksheets
+#    Waipuʻilani 2026 records date + site; each group column pools 11 quadrats
+#    x 25 points, so quadrats = TOTAL Points / 25 (rule written in the sheet).
+#    The 2023 and 2025 worksheets record neither date nor site -> excluded.
+# ---------------------------------------------------------------------------
+wf <- file.path(raw_dir, "OPIHI Field Study 2026 - Waipuilani Data.xlsx")
+wx <- suppressMessages(read_excel(wf, "QUADRAT PT INTERCEPT", col_names = FALSE,
+                                  col_types = "text", .name_repair = "minimal"))
+tot_row <- which(str_detect(coalesce(wx[[1]], ""), "^TOTAL Points"))
+date_cells <- unlist(wx[1, ]); grp_cells <- unlist(wx[2, ])
+cur <- NA_character_; trip_of_col <- character(length(date_cells))
+for (j in seq_along(date_cells)) {
+  if (!is.na(date_cells[j])) cur <- date_cells[j]
+  trip_of_col[j] <- if (!is.na(grp_cells[j])) cur else NA_character_
+}
+trips_class <- tibble(date_raw = trip_of_col,
+                      pts = suppressWarnings(as.numeric(unlist(wx[tot_row, ])))) |>
+  filter(!is.na(date_raw), !is.na(pts)) |>
+  group_by(date = excel_to_date(date_raw)) |>
+  summarise(n_teams = n(), n_quadrats_raw = sum(pts) / 25, .groups = "drop") |>
+  mutate(site_raw = "Waipuilani", source_file = basename(wf),
+         source_ref = "QUADRAT PT INTERCEPT (pooled per group)",
+         school_raw = "Kamehameha Schools Maui") |>
+  standardise_site()
+
+log_excl(tibble(source_file = c("Copy of OPIHI Field Study 2023 - ALL Group Data (P1_P2).xlsx",
+                                "Copy of OPIHI Field Study 2025 - ALL Group Data (P1_P2) - use this one!.xlsx"),
+                source_ref = "whole workbook", date = as.Date(NA), site_raw = NA_character_,
+                detail = "class worksheet: no date or site recorded in the file"),
+         "cannot be placed in a site-year without date and site (ask OPIHI)")
+log_excl(tibble(source_file = c("Sandy Beach Only_.xlsx", "Playing around... Jo March 2022.xlsx",
+                                "OPIHI Data - Reformated.xlsx"),
+                source_ref = c("whole workbook", "whole workbook", "all sheets except Totals_NO_Excl"),
+                date = as.Date(NA), site_raw = NA_character_,
+                detail = "derived summary of the 2004-2020 trips already imported"),
+         "derived / duplicate of raw data")
+
+# ---------------------------------------------------------------------------
+# 5. De-identification: schools, teams and data-entry people -> codes
+# ---------------------------------------------------------------------------
+key_school <- make_id_key(c(trips_w$school_raw, comp_only$school_raw,
+                            trips_class$school_raw), "SCH")
+key_team   <- make_id_key(q_long$team_raw, "TM")
+write_csv(bind_rows(mutate(key_school, type = "school"),
+                    mutate(key_team, type = "data_entry_person")),
+          "data/private/id_key.csv")
+code_school <- function(x) key_school$id[match(str_squish(x), key_school$raw_name)]
+
+# ---------------------------------------------------------------------------
+# 6. Assemble the survey (trip) table
+# ---------------------------------------------------------------------------
+surveys <- bind_rows(
+  trips_w |> transmute(data_era = "2004-2020 yearly workbooks", source_file, source_ref,
+                       link_key, site_recovery,
+                       date, site_raw, site_std, site_confidence, latitude, longitude,
+                       group_id = code_school(school_raw), n_teams = 1L,
+                       start_time, stop_time, n_transects_recorded,
+                       quad_per_transect_recorded, transect_length_m,
+                       point_spacing_m = parse_spacing_m(point_spacing_raw),
+                       n_transects_observed, n_quadrats_raw, n_quadrats_compiled),
+  comp_only |> transmute(data_era = "2004-2020 compiled sheet only", source_file, source_ref,
+                         date, site_raw, site_std, site_confidence, latitude, longitude,
+                         group_id = code_school(school_raw), n_teams = 1L,
+                         start_time, stop_time, n_transects_recorded,
+                         quad_per_transect_recorded, transect_length_m,
+                         point_spacing_m = parse_spacing_m(point_spacing_raw),
+                         n_quadrats_compiled),
+  trips_long |> transmute(data_era = "2024-2026 longitudinal sheets", source_file, source_ref,
+                          link_key,
+                          date, site_raw, site_std, site_confidence,
+                          group_id = "OPIHI-LT", n_teams = as.integer(n_teams),
+                          start_time, stop_time, n_transects_recorded,
+                          quad_per_transect_recorded, transect_length_m,
+                          n_transects_observed, n_quadrats_raw),
+  trips_class |> transmute(data_era = "2026 class worksheet", source_file, source_ref,
+                           date, site_raw, site_std, site_confidence,
+                           group_id = code_school(school_raw), n_teams = as.integer(n_teams),
+                           n_quadrats_raw)
+) |>
+  mutate(
+    n_quadrats_observed = coalesce(n_quadrats_raw, n_quadrats_compiled),
+    quadrat_count_source = case_when(!is.na(n_quadrats_raw) ~ "raw quadrat data",
+                                     !is.na(n_quadrats_compiled) ~ "compiled summary only",
+                                     TRUE ~ "none"),
+    duration_min = minutes_between(start_time, stop_time),
+    year = as.integer(format(date, "%Y"))
+  ) |>
+  arrange(date, site_std, group_id) |>
+  mutate(survey_id = sprintf("SV%04d", row_number()), .before = 1)
+
+checked <- check_effort(surveys, dup_key = c("date", "site_std", "group_id")) |>
+  select(-link_key)
+
+# ---------------------------------------------------------------------------
+# 7. Quadrat-level master
+# ---------------------------------------------------------------------------
+sid <- surveys |> select(survey_id, link_key, data_era)
+quad_master <- bind_rows(
+  wide$quadrats |> filter(has_data) |>
+    inner_join(trips_w |> select(source_file, source_block, date, site_std, school_raw, link_key),
+               by = c("source_file", "source_block")) |>
+    transmute(link_key, date, site_std, group_id = code_school(school_raw), team_id = NA_character_,
+              transect, quadrat, point_m, n_taxa_recorded, total_points,
+              source_file, source_ref = paste0("block@col", source_block, " / ", quadrat_label)),
+  q_long |>
+    transmute(link_key = paste("LT", date, site_std, sep = "|"), date, site_std, group_id = "OPIHI-LT",
+              team_id = key_team$id[match(team_raw, key_team$raw_name)],
+              transect, quadrat = NA_integer_, point_m, n_taxa_recorded, total_points,
+              source_file, source_ref = paste0("Quadrat PtCounts row ", raw_row))
+) |>
+  left_join(sid, by = "link_key", relationship = "many-to-one") |>
+  select(-link_key) |>
+  arrange(survey_id, transect, point_m) |>
+  mutate(quadrat_uid = sprintf("Q%05d", row_number()), .before = 1) |>
+  relocate(survey_id, .after = quadrat_uid)
+
+# ---------------------------------------------------------------------------
+# 8. Logs and outputs
+# ---------------------------------------------------------------------------
+duplicates <- bind_rows(
+  dups_w |> transmute(level = "survey", source_file, source_ref, date, site_std,
+                      kept = "earlier block with same date/site/school/quadrat count",
+                      dup_type = "repeated trip block"),
+  dups_long |> transmute(level = "quadrat", source_file,
+                         source_ref = paste0("Quadrat PtCounts row ", raw_row),
+                         date, site_std, kept = kept_ref, dup_type)
+)
+
+write_csv(checked, "data/clean/opihi_surveys_effort.csv", na = "")
+write_csv(quad_master, "data/clean/opihi_quadrats_master.csv", na = "")
+write_csv(bind_rows(exclusions), "data/clean/exclusions_log.csv", na = "")
+write_csv(duplicates, "data/clean/duplicates_log.csv", na = "")
+write_csv(crosscheck, "data/clean/crosscheck_compiled.csv", na = "")
+
+message(sprintf("surveys: %d | quadrats: %d | duplicates removed: %d | records excluded: %d",
+                nrow(checked), nrow(quad_master), nrow(duplicates),
+                nrow(bind_rows(exclusions))))

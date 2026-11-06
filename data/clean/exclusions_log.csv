@@ -1,0 +1,137 @@
+reason,source_file,source_ref,date,site_raw,detail
+cannot be linked to a survey,OPIHI data 2020.xlsx,block@col171,,,quadrat block with no trip metadata (date cell '???????')
+quadrat row not usable (see detail),OPIHI BIOL 499 2025 LT data.xlsx,Quadrat PtCounts row 3,2025-03-29,Mamala Bay,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 3,2025-04-13,Mauliola,example_template
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 40,,Lē'ahi,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 64,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 65,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 66,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 67,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 68,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 69,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 70,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 71,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 72,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 73,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 74,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 90,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 91,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 92,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 93,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 94,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 95,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 96,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 163,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 164,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 165,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 166,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 167,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 168,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 169,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 170,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 171,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 172,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 173,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 174,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 175,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 176,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 177,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 178,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 179,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 180,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 181,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 182,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 183,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 184,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 185,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 186,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 187,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 188,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 189,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 190,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 191,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 192,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 193,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 194,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 195,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 196,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 197,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 198,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 199,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 200,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 201,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 202,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 203,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 204,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 205,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 206,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 207,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 208,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 209,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 210,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 211,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 212,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 213,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 214,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 215,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 216,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 217,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 218,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 219,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 220,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 221,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 222,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 223,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 224,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 225,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 226,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 227,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 228,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 229,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 230,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 231,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 232,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 233,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 234,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 235,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 236,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 237,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 238,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 239,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 240,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 241,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 242,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 243,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 244,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 245,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 246,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 247,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 248,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 249,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 250,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 251,2026-01-25,Mauliola,no_points_recorded
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 252,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 253,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 254,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 255,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 256,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 257,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 258,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 259,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 260,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 261,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 262,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 263,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 264,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 265,,Mauliola,unparseable_date
+quadrat row not usable (see detail),OPIHI 2026 Longitudinal Monitoring Data.xlsx,Quadrat PtCounts row 266,,Mauliola,unparseable_date
+quadrat row not usable (see detail),RAW Mauliola OPIHI Data 2026.xlsx,Quadrat PtCounts row 57,2026-04-20,Mauliola,no_points_recorded
+metadata row without a date,OPIHI 2026 Longitudinal Monitoring Data.xlsx,Metadata,,‘Ewa Beach,metadata row without a date
+metadata row without a date,OPIHI 2026 Longitudinal Monitoring Data.xlsx,Metadata,,‘Ewa Beach,metadata row without a date
+metadata row without a date,OPIHI 2026 Longitudinal Monitoring Data.xlsx,Metadata,,‘Ewa Beach,metadata row without a date
+metadata row without a date,OPIHI 2026 Longitudinal Monitoring Data.xlsx,Metadata,,‘Ewa Beach,metadata row without a date
+cannot be placed in a site-year without date and site (ask OPIHI),Copy of OPIHI Field Study 2023 - ALL Group Data (P1_P2).xlsx,whole workbook,,,class worksheet: no date or site recorded in the file
+cannot be placed in a site-year without date and site (ask OPIHI),Copy of OPIHI Field Study 2025 - ALL Group Data (P1_P2) - use this one!.xlsx,whole workbook,,,class worksheet: no date or site recorded in the file
+derived / duplicate of raw data,Sandy Beach Only_.xlsx,whole workbook,,,derived summary of the 2004-2020 trips already imported
+derived / duplicate of raw data,Playing around... Jo March 2022.xlsx,whole workbook,,,derived summary of the 2004-2020 trips already imported
+derived / duplicate of raw data,OPIHI Data - Reformated.xlsx,all sheets except Totals_NO_Excl,,,derived summary of the 2004-2020 trips already imported

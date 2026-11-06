@@ -1,0 +1,222 @@
+---
+title: "OPIHI Sampling Effort & Data Quality"
+subtitle: "OCN 682 / MBIO 612 AI Data Sprint — Question B (draft v0.1)"
+author: "Team B: Manōʻike, Gabby, Tim, Yang An"
+date: today
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: true
+    theme: cosmo
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| include: false
+# Rebuild every clean file from data/raw so the report is reproducible end-to-end
+source("scripts/01_build_master.R")
+library(ggplot2); library(knitr); library(kableExtra); library(forcats)
+surveys <- read_csv("data/clean/opihi_surveys_effort.csv", show_col_types = FALSE)
+quads   <- read_csv("data/clean/opihi_quadrats_master.csv", show_col_types = FALSE)
+excl    <- read_csv("data/clean/exclusions_log.csv", show_col_types = FALSE)
+dups    <- read_csv("data/clean/duplicates_log.csv", show_col_types = FALSE)
+cc      <- read_csv("data/clean/crosscheck_compiled.csv", show_col_types = FALSE)
+blue <- c("#86b6ef", "#2a78d6", "#104281")   # ordinal blue ramp (light -> dark)
+```
+
+## 1. Question and metrics
+
+**Question B.** How does sampling effort (survey dates, transects, quadrats) differ
+among OPIHI sites and years, which site-years are most complete, and how much data
+coverage remains as stricter quality filters are applied?
+
+| Metric | Definition |
+|---|---|
+| **Survey** (observation unit) | One field trip: one date × one site × one school/team group |
+| Planned quadrats | `n_transects_recorded × quad_per_transect_recorded`, from the trip metadata |
+| Observed quadrats | Quadrats that actually have data in the raw sheets |
+| **Completeness** | observed ÷ planned quadrats |
+| Complete survey | Completeness ≥ 0.8, quadrat data present, key metadata present and plausible |
+| Site-year coverage tier | 2+ complete surveys / 1 complete survey / none |
+
+**Scope.** All 20 workbooks were inventoried. Surveys from 2004–2008, 2016–2020 and
+2024–2026 that have a date and a site are included. There are no files for 2009–2015
+or 2021–2023.
+
+## 2. Data inventory
+
+```{r inventory}
+surveys |>
+  count(data_era, name = "surveys") |>
+  kable(col.names = c("Source", "Surveys in master")) |>
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "condensed"))
+```
+
+## 3. Cleaning decisions
+
+Raw files in `data/raw/` are never edited. Every rule below is coded in
+`scripts/01_build_master.R`, and every removed record is written to a log.
+
+1. **Different layouts → one schema.** The 2004–2020 files store one trip per
+   column block. The 2024–2026 files store one quadrat per row. The 2026
+   Waipuʻilani class sheet pools 11 quadrats × 25 points per group.
+   Each layout has its own importer (`R/import_wide.R`, `R/import_long.R`).
+2. **Duplicates.** `r nrow(dups)` duplicate records were removed
+   (`r sum(dups$dup_type == "exact copy")` exact copies and
+   `r sum(dups$dup_type != "exact copy")` near-copies in *Copy of OPIHI 2024
+   datasheet*, where taxon columns were renamed). The compiled 2004–2020 sheet
+   (*OPIHI Data – Reformated*) repeats the yearly files. It is used only to
+   cross-check counts and to add the `r sum(surveys$data_era == "2004-2020 compiled sheet only")`
+   trips that have no raw yearly block.
+3. **Site names.** Site labels were normalised by removing ʻokina and macrons and
+   lower-casing, then mapped with `data/lookup/site_lookup.csv`, which prefers
+   Hawaiian names (Diamond Head → Lēʻahi, Sand Island → Mauliola,
+   Barbers Point/“Kalealoa” → Kalaeloa, `` `Ewa ``/Ewa Beach → ʻEwa Beach).
+   Uncertain merges are kept separate and marked `check`.
+4. **Lost site names (2019).** Most 2019 blocks have an empty site cell or one
+   that literally says “Location”.
+   `r sum(grepl("compiled", surveys$site_recovery))` were recovered from the
+   compiled sheet (same date + school) and
+   `r sum(grepl("coordinates", surveys$site_recovery))` from the nearest known
+   site within 1 km of their coordinates.
+5. **Excel damage.** Excel turned “# Quad/T” entries such as “10-12” into dates
+   (serial numbers above 45,000). These are set to NA, and the raw value is kept.
+   Times entered on a 12-hour clock (stop “01:10” for 13:10) are corrected when
+   duration is computed.
+6. **Excluded rows** (`r nrow(excl)` total). The table below lists the reasons.
+7. **Teacher and student names.** Schools and data-entry people are replaced by
+   codes (`SCH###`, `TM###`). The code key is written only to `data/private/`,
+   which is git-ignored and goes to Dr. Philippoff.
+
+```{r exclusions}
+excl |>
+  count(reason, detail, name = "records") |>
+  kable() |>
+  kable_styling(bootstrap_options = c("striped", "condensed"))
+```
+
+### Cross-check against the compiled sheet
+
+Quadrats counted from the raw yearly files were compared with the
+“Actual Quadrats sampled” column of the compiled sheet for the
+`r nrow(cc)` trips found in both: `r sum(cc$difference == 0, na.rm = TRUE)`
+match exactly.
+
+```{r crosscheck}
+cc |>
+  filter(is.na(difference) | difference != 0) |>
+  select(date, site_std, n_quadrats_raw, n_quadrats_compiled, difference) |>
+  kable(caption = "Trips where the raw and compiled quadrat counts disagree (NA = no raw quadrat data)") |>
+  kable_styling(full_width = FALSE, bootstrap_options = c("condensed"))
+```
+
+## 4. Clean master data (preview)
+
+```{r preview}
+surveys |>
+  filter(effort_status == "complete") |>
+  slice_sample(n = 8) |>
+  arrange(date) |>
+  select(survey_id, date, site_std, group_id, n_transects_recorded,
+         quad_per_transect_recorded, n_quadrats_observed, completeness) |>
+  mutate(completeness = scales::percent(completeness, accuracy = 1)) |>
+  kable(col.names = c("Survey", "Date", "Site", "Group", "Transects",
+                      "Quad / transect", "Quadrats observed", "Completeness")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+The full files are `data/clean/opihi_surveys_effort.csv` (`r nrow(surveys)` surveys)
+and `data/clean/opihi_quadrats_master.csv` (`r format(nrow(quads), big.mark = ",")`
+quadrats). Every column is described in `data/data_dictionary.csv`.
+
+## 5. Reusable function: `check_effort()`
+
+`check_effort()` (in `R/check_effort.R`) takes a survey table and returns the same
+rows with planned quadrats, completeness, ten `flag_*` columns and an
+`effort_status`. All thresholds are arguments, so OPIHI can run it on new datasheets.
+`tests/test_check_effort.R` checks every rule on small hand-made cases.
+
+```{r function-demo}
+#| code-fold: false
+checked <- check_effort(surveys, min_completeness = 0.8)
+count(checked, effort_status)
+```
+
+## 6. Figures
+
+```{r fig-coverage}
+#| fig-width: 10
+#| fig-height: 9
+#| fig-cap: "**Figure 1. Survey coverage by site and year.** Each tile is a site-year that has at least one survey. Colour shows how many surveys met the completeness rule (≥ 80% of planned quadrats, metadata present). The number is the total surveys that year. Only sites visited in two or more different years are shown. There are no files for 2009–2015 or 2021–2023."
+sy <- summarise_site_year(checked)
+multi_year <- sy |> count(site_std) |> filter(n >= 2) |> pull(site_std)
+sy |>
+  filter(site_std %in% multi_year) |>
+  mutate(coverage_tier = factor(coverage_tier, c("no complete survey",
+                                                 "1 complete survey",
+                                                 "2+ complete surveys")),
+         site_std = fct_reorder(site_std, year, .fun = length),
+         year = factor(year)) |>
+  ggplot(aes(year, site_std, fill = coverage_tier)) +
+  geom_tile(colour = "white", linewidth = 1) +
+  geom_text(aes(label = n_surveys,
+                colour = coverage_tier == "2+ complete surveys"), size = 3.2) +
+  scale_fill_manual(values = blue, drop = FALSE, name = NULL) +
+  scale_colour_manual(values = c(`FALSE` = "#1a1a1a", `TRUE` = "white"), guide = "none") +
+  labs(x = NULL, y = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(panel.grid = element_blank(), legend.position = "top",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("figures/fig1_site_year_coverage.png", width = 10, height = 9, dpi = 200, bg = "white")
+```
+
+```{r fig-filtering}
+#| fig-width: 10
+#| fig-height: 5
+#| fig-cap: "**Figure 2. How filtering changes coverage.** Number of surveys per year that remain as quality filters are added one after another: (1) all surveys with a date and site; (2) quadrat-level data exist (not just a compiled summary); (3) effort metadata present and plausible; (4) at least 80% of planned quadrats observed. The gap between lines is the data each filter removes."
+filt <- checked |>
+  mutate(
+    f1 = TRUE,
+    f2 = quadrat_count_source == "raw quadrat data",
+    f3 = f2 & !flag_missing_effort_meta & !flag_implausible_qpt,
+    f4 = f3 & effort_status == "complete"
+  ) |>
+  group_by(year) |>
+  summarise(across(f1:f4, sum)) |>
+  pivot_longer(f1:f4, names_to = "filter", values_to = "surveys") |>
+  mutate(filter = factor(filter, levels = c("f1", "f2", "f3", "f4"),
+                         labels = c("1 All surveys", "2 + raw quadrat data",
+                                    "3 + effort metadata OK", "4 + at least 80% complete")),
+         year = factor(year))
+p2 <- ggplot(filt, aes(year, surveys, colour = filter, group = filter)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2.5) +
+  scale_colour_manual(values = c("#b7d3f6", "#6da7ec", "#2a78d6", "#0d366b"), name = NULL) +
+  labs(x = NULL, y = "Surveys") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top", panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank())
+print(p2)
+ggsave("figures/fig2_filtering_coverage.png", width = 10, height = 5, dpi = 200, bg = "white")
+```
+
+These patterns are descriptive only. No statistical tests were run.
+
+## 7. Open questions for OPIHI
+
+- **Wawaloli, 2020-01-09.** The raw block has 15 quadrats and the compiled sheet says
+  20. An unlabelled block right after it (date cell “???????”, no metadata) has
+  exactly 20 quadrats. Is that block the real Wawaloli data?
+- Is **Māmala Bay** the same set of transects as Mauliola/Sand Island? Is
+  **Sandy Beach West** separate from Sandy Beach, and **Keiki Bay** separate from
+  Keiki Ponds?
+- The **2025-03-29** metadata row says Lēʻahi in the 2026 file but Sand Island in the
+  BIOL 499 file. The quadrat data say Sand Island.
+- The 2023 and 2025 class worksheets record no date or site. Can OPIHI supply them?
+
+## 8. AI use
+
+See `AI_developer_log.md`.

@@ -1,0 +1,51 @@
+file,column,type,description
+opihi_surveys_effort.csv,survey_id,text,"Unique survey code (SV0001...), assigned after sorting by date, site, group"
+opihi_surveys_effort.csv,data_era,text,Which raw layout the survey came from (2004-2020 yearly workbooks / compiled sheet only / 2024-2026 longitudinal sheets / 2026 class worksheet)
+opihi_surveys_effort.csv,source_file,text,Raw workbook(s) the survey was read from
+opihi_surveys_effort.csv,source_ref,text,Where in the workbook (column block or sheet/row) so any value can be traced back
+opihi_surveys_effort.csv,site_recovery,text,"For 2004-2020 trips: 'as recorded', or how a missing site name was recovered (compiled sheet / nearest site by coordinates)"
+opihi_surveys_effort.csv,date,date (YYYY-MM-DD),Survey date
+opihi_surveys_effort.csv,site_raw,text,Site label exactly as typed in the raw file (blank if missing)
+opihi_surveys_effort.csv,site_std,text,Standardised site name (Hawaiian name preferred) from data/lookup/site_lookup.csv
+opihi_surveys_effort.csv,site_confidence,text,high / check (merge or name needs OPIHI confirmation) / recovered
+opihi_surveys_effort.csv,latitude,decimal degrees,Latitude as recorded (2004-2020 only)
+opihi_surveys_effort.csv,longitude,decimal degrees,Longitude as recorded (2004-2020 only)
+opihi_surveys_effort.csv,group_id,text,"De-identified school code (SCH###); OPIHI-LT = 2024-2026 longitudinal monitoring group. Key held privately by OPIHI"
+opihi_surveys_effort.csv,n_teams,integer,Number of data-entry teams/groups contributing to the survey
+opihi_surveys_effort.csv,start_time,text (HH:MM),Survey start time
+opihi_surveys_effort.csv,stop_time,text (HH:MM),Survey end time
+opihi_surveys_effort.csv,n_transects_recorded,number,Number of transect lines written in the trip metadata
+opihi_surveys_effort.csv,quad_per_transect_recorded,number,Quadrats per transect written in the metadata (NA if missing or Excel-corrupted)
+opihi_surveys_effort.csv,transect_length_m,text,Transect length as recorded (metres)
+opihi_surveys_effort.csv,point_spacing_m,number,Point spacing parsed to metres ('1/2 meter' -> 0.5)
+opihi_surveys_effort.csv,n_transects_observed,integer,Distinct transects that have quadrat data
+opihi_surveys_effort.csv,n_quadrats_raw,integer,Quadrats with data counted from the raw quadrat-level sheets
+opihi_surveys_effort.csv,n_quadrats_compiled,number,'Actual Quadrats sampled' from the compiled 2004-2020 sheet (for cross-checking)
+opihi_surveys_effort.csv,n_quadrats_observed,number,Quadrats used for effort: raw count if available otherwise compiled count
+opihi_surveys_effort.csv,quadrat_count_source,text,raw quadrat data / compiled summary only / none
+opihi_surveys_effort.csv,duration_min,number,Minutes between start and stop (12-hour clock entries corrected)
+opihi_surveys_effort.csv,year,integer,Year of survey
+opihi_surveys_effort.csv,planned_quadrats,number,n_transects_recorded x quad_per_transect_recorded
+opihi_surveys_effort.csv,completeness,number (0-1+),n_quadrats_observed / planned_quadrats
+opihi_surveys_effort.csv,flag_*,logical,One column per check_effort() rule; TRUE = problem (see R/check_effort.R header)
+opihi_surveys_effort.csv,n_flags,integer,Number of TRUE flags
+opihi_surveys_effort.csv,effort_status,text,complete / incomplete / no_quadrat_data / metadata_problem
+opihi_quadrats_master.csv,quadrat_uid,text,Unique quadrat code (Q00001...)
+opihi_quadrats_master.csv,survey_id,text,Links to opihi_surveys_effort.csv
+opihi_quadrats_master.csv,date,date,Survey date
+opihi_quadrats_master.csv,site_std,text,Standardised site name
+opihi_quadrats_master.csv,group_id,text,De-identified school/group code
+opihi_quadrats_master.csv,team_id,text,De-identified data-entry person/team (TM###; 2024-2026 only)
+opihi_quadrats_master.csv,transect,integer,Transect number
+opihi_quadrats_master.csv,quadrat,integer,Quadrat number on the transect (2004-2020 only)
+opihi_quadrats_master.csv,point_m,number,Position of the quadrat along the transect (m)
+opihi_quadrats_master.csv,n_taxa_recorded,integer,Number of taxa/substrate categories with at least one point
+opihi_quadrats_master.csv,total_points,number,Sum of all point counts in the quadrat
+opihi_quadrats_master.csv,source_file / source_ref,text,Traceability back to the raw workbook
+opihi_quadrats_master.csv,data_era,text,As in the survey table
+exclusions_log.csv,reason / detail,text,Why the record was left out
+exclusions_log.csv,source_file / source_ref / date / site_raw,text,Which record
+duplicates_log.csv,level,text,survey or quadrat
+duplicates_log.csv,dup_type,text,exact copy / same quadrat in 'Copy of' file / repeated trip block
+duplicates_log.csv,kept,text,Which copy was kept instead
+crosscheck_compiled.csv,difference,number,n_quadrats_raw - n_quadrats_compiled (0 = agree)

@@ -1,3 +1,0 @@
-"0",""
-"0","#Save plot"
-"0","ggsave(""figures/county_survey.png"", width = 10)"

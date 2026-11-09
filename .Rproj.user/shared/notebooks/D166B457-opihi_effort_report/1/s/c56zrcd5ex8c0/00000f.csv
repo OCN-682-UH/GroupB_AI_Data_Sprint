@@ -1,4 +1,0 @@
-"0","excl |>"
-"0","  count(reason, detail, name = ""records"") |>"
-"0","  kable() |>"
-"0","  kable_styling(bootstrap_options = c(""striped"", ""condensed""))"

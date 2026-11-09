@@ -1,0 +1,8 @@
+"0","dups |>"
+"0","  count(dup_type, level, source_file, name = ""records"") |>"
+"0","  arrange(desc(records)) |>"
+"0","  kable() |>"
+"0","  kable_styling("
+"0","    full_width = FALSE, "
+"0","    bootstrap_options = c(""striped"", ""condensed"")"
+"0","  )"

@@ -29,24 +29,23 @@ blue <- c("#86b6ef", "#2a78d6", "#104281")   # ordinal blue ramp (light -> dark)
 
 ## 1. Question and metrics
 
-**Question B.** How does sampling effort (survey dates, transects, quadrats) differ
-among OPIHI sites and years, which site-years are most complete, and how much data
-coverage remains as stricter quality filters are applied?
+**Question B:** How does sampling effort (survey dates, transects, quadrats) differ among OPIHI sites and years, which site-years are most complete, and how much data coverage remains as stricter quality filters are applied?
+
 
 | Metric | Definition |
 |---|---|
-| **Survey** (observation unit) | One field trip: one date × one site × one school/team group |
+| Survey (observation unit) | One field trip: one date × one site × one school/team group |
 | Planned quadrats | `n_transects_recorded × quad_per_transect_recorded`, from the trip metadata |
 | Observed quadrats | Quadrats that actually have data in the raw sheets |
-| **Completeness** | observed ÷ planned quadrats |
+| Completeness | observed ÷ planned quadrats |
 | Complete survey | Completeness ≥ 0.8, quadrat data present, key metadata present and plausible |
 | Site-year coverage tier | 2+ complete surveys / 1 complete survey / none |
 
-**Scope.** All 20 workbooks were inventoried. Surveys from 2004–2008, 2016–2020 and
+## 2. Data inventory
+
+**Scope:** All 20 workbooks were inventoried. Surveys from 2004–2008, 2016–2020 and
 2024–2026 that have a date and a site are included. There are no files for 2009–2015
 or 2021–2023.
-
-## 2. Data inventory
 
 ```{r inventory}
 surveys |>
@@ -91,6 +90,7 @@ Raw files in `data/raw/` are never edited. Every rule below is coded in
    codes (`SCH###`, `TM###`). The code key is written only to `data/private/`,
    which is git-ignored and goes to Dr. Philippoff.
 
+### **Exclusions Log**
 ```{r exclusions}
 excl |>
   count(reason, detail, name = "records") |>
@@ -98,12 +98,28 @@ excl |>
   kable_styling(bootstrap_options = c("striped", "condensed"))
 ```
 
+
+### **Duplicates log**
+```{r}
+dups |>
+  count(dup_type, level, source_file, name = "records") |>
+  arrange(desc(records)) |>
+  kable() |>
+  kable_styling(
+    full_width = FALSE, 
+    bootstrap_options = c("striped", "condensed")
+  )
+```
+
+
 ### Cross-check against the compiled sheet
 
 Quadrats counted from the raw yearly files were compared with the
 “Actual Quadrats sampled” column of the compiled sheet for the
 `r nrow(cc)` trips found in both: `r sum(cc$difference == 0, na.rm = TRUE)`
 match exactly.
+
+Ex: Someone wrote "40 quadrats" in the summary sheet, but only 36 quadrat rows actually exist in the raw file, or certain transects were intentionally excluded
 
 ```{r crosscheck}
 cc |>
@@ -114,6 +130,12 @@ cc |>
 ```
 
 ## 4. Clean master data (preview)
+
+Here is a preview of our cleaned master data looking at survey effort with completeness being quantified by what is described in the Metrics.
+
+The full files are `data/clean/opihi_surveys_effort.csv` (`r nrow(surveys)` surveys)
+and `data/clean/opihi_quadrats_master.csv` (`r format(nrow(quads), big.mark = ",")`
+quadrats). Every column is described in `data/data_dictionary.csv`.
 
 ```{r preview}
 surveys |>
@@ -128,9 +150,6 @@ surveys |>
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
-The full files are `data/clean/opihi_surveys_effort.csv` (`r nrow(surveys)` surveys)
-and `data/clean/opihi_quadrats_master.csv` (`r format(nrow(quads), big.mark = ",")`
-quadrats). Every column is described in `data/data_dictionary.csv`.
 
 ## 5. Reusable function: `check_effort()`
 
@@ -176,31 +195,97 @@ ggsave("figures/fig1_site_year_coverage.png", width = 10, height = 9, dpi = 200,
 ```{r fig-filtering}
 #| fig-width: 10
 #| fig-height: 5
-#| fig-cap: "**Figure 2. How filtering changes coverage.** Number of surveys per year that remain as quality filters are added one after another: (1) all surveys with a date and site; (2) quadrat-level data exist (not just a compiled summary); (3) effort metadata present and plausible; (4) at least 80% of planned quadrats observed. The gap between lines is the data each filter removes."
-filt <- checked |>
-  mutate(
-    f1 = TRUE,
-    f2 = quadrat_count_source == "raw quadrat data",
-    f3 = f2 & !flag_missing_effort_meta & !flag_implausible_qpt,
-    f4 = f3 & effort_status == "complete"
-  ) |>
-  group_by(year) |>
-  summarise(across(f1:f4, sum)) |>
-  pivot_longer(f1:f4, names_to = "filter", values_to = "surveys") |>
-  mutate(filter = factor(filter, levels = c("f1", "f2", "f3", "f4"),
-                         labels = c("1 All surveys", "2 + raw quadrat data",
-                                    "3 + effort metadata OK", "4 + at least 80% complete")),
-         year = factor(year))
-p2 <- ggplot(filt, aes(year, surveys, colour = filter, group = filter)) +
-  geom_line(linewidth = 0.8) +
+#| fig-cap: "**Figure 2. How filtering changes coverage.** Number of surveys per year that remain as quality filters are added one after another: (1) all surveys with a date and site; (2) quadrat-level data exist (not just a compiled summary); (3) effort metadata present and plausible. The gap between lines is the data each filter removes."
+
+county_lookup <- tribble(
+  ~site_std, ~county,
+  "Baby Makapuʻu", "Honolulu County (Oʻahu)",
+  "Fuji", "Kauaʻi County",
+  "Haneoʻo Fishpond", "Maui County (Maui, Molokaʻi, Lānaʻi)",
+  "Hilo Yacht Club", "Hawaiʻi County",
+  "Holoholokai", "Hawaiʻi County",
+  "Hulopoʻe Bay", "Maui County (Maui, Molokaʻi, Lānaʻi)",
+  "Kahaluʻu Bay", "Hawaiʻi County",
+  "Kahana Bay", "Honolulu County (Oʻahu)",
+  "Kalaeloa", "Honolulu County (Oʻahu)",
+  "Kamaʻole II & III Beach Parks", "Maui County (Maui, Molokaʻi, Lānaʻi)",
+  "Kapukahehu Kaluakoʻi", "Maui County (Maui, Molokaʻi, Lānaʻi)",
+  "Kaupō", "Hawaiʻi County",
+  "Keawakapu", "Maui County (Maui, Molokaʻi, Lānaʻi)",
+  "Keiki Bay", "Honolulu County (Oʻahu)",
+  "Keiki Ponds", "Hawaiʻi County",
+  "Keʻei", "Hawaiʻi County",
+  "Kona Bay Estates", "Hawaiʻi County",
+  "Kīholo Bay", "Hawaiʻi County",
+  "Lanikai Point", "Honolulu County (Oʻahu)",
+  "Lēʻahi", "Honolulu County (Oʻahu)",
+  "Mapulehu", "Maui County (Maui, Molokaʻi, Lānaʻi)",
+  "Māmala Bay", "Honolulu County (Oʻahu)",
+  "Mauliola", "Honolulu County (Oʻahu)",
+  "Mokauea Island", "Honolulu County (Oʻahu)",
+  "Morris Point", "Maui County (Maui, Molokaʻi, Lānaʻi)",
+  "Moʻomomi", "Maui County (Maui, Molokaʻi, Lānaʻi)",
+  "Māhāʻulepū", "Kauaʻi County",
+  "Māʻili Beach", "Honolulu County (Oʻahu)",
+  "Nukoliʻi", "Kauaʻi County",
+  "Nāpili Bay", "Maui County (Maui, Molokaʻi, Lānaʻi)",
+  "Old Airport", "Hawaiʻi County",
+  "Onekahakaha", "Hawaiʻi County",
+  "Oneʻo Bay", "Hawaiʻi County",
+  "Punaluʻu Beach Park", "Hawaiʻi County",
+  "Richardson's", "Hawaiʻi County",
+  "Salt Pond", "Kauaʻi County",
+  "Sandy Beach", "Honolulu County (Oʻahu)",
+  "Sandy Beach West", "Honolulu County (Oʻahu)",
+  "Turtle Bay", "Honolulu County (Oʻahu)",
+  "Waipouli", "Kauaʻi County",
+  "Waipuʻilani", "Maui County (Maui, Molokaʻi, Lānaʻi)",
+  "Waiʻanae High School Reef", "Honolulu County (Oʻahu)",
+  "Waiʻōpae", "Hawaiʻi County",
+  "Wawaloli", "Hawaiʻi County",
+  "ʻEwa Beach", "Honolulu County (Oʻahu)"
+)
+
+#Join ounty lookup tibble to checked dataset
+survey_county_data <- checked |>
+  left_join(county_lookup, by = "site_std")
+
+#Group by year and county, then count # of surveys 
+county_counts <- survey_county_data |>
+  filter(!is.na(county)) |> # Exclude unmatched sites if any exist
+  group_by(year, county) |>
+  summarise(n_surveys = n_distinct(survey_id), .groups = "drop")
+
+#Fill missing year-county combinations with 0 to prevent gaps in lines
+county_counts_complete <- county_counts |>
+  complete(year = full_seq(year, 1), county, fill = list(n_surveys = 0))
+
+#Plot
+ggplot(county_counts_complete, aes(x = year, y = n_surveys, color = county, group = county)) +
+  geom_line(linewidth = 1.2) +
   geom_point(size = 2.5) +
-  scale_colour_manual(values = c("#b7d3f6", "#6da7ec", "#2a78d6", "#0d366b"), name = NULL) +
-  labs(x = NULL, y = "Surveys") +
-  theme_minimal(base_size = 12) +
-  theme(legend.position = "top", panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank())
-print(p2)
-ggsave("figures/fig2_filtering_coverage.png", width = 10, height = 5, dpi = 200, bg = "white")
+  scale_x_continuous(breaks = function(x) seq(floor(min(x)), ceiling(max(x)), by = 2)) +
+  scale_y_continuous(limits = c(0, NA)) +
+  labs(
+    title = "Annual OPIHI Survey Effort by County",
+    x = "Year",
+    y = "Number of Surveys",
+    color = NULL  # Remove legend title from aesthetic
+  ) +
+  theme_minimal() +
+  theme(
+    #Position top-right corner + inside the plot area
+    legend.position = c(0.98, 0.98),
+    legend.justification = c(1, 1),
+    legend.direction = "vertical", #stacked
+    legend.title = element_blank(),
+    # Semi-transparent background --> gridlines don't clip text
+    legend.background = element_rect(fill = alpha("white", 0.8), color = NA),
+    plot.title = element_text(face = "bold", size = 14)
+  )
+
+#Save plot
+ggsave("figures/county_survey.png", width = 10)
 ```
 
 These patterns are descriptive only. No statistical tests were run.

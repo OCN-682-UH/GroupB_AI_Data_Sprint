@@ -17,7 +17,7 @@ suppressPackageStartupMessages({
   library(readr)
 })
 
-raw_dir <- "data/raw"
+raw_dir <- "data/raw/AI data"
 dir.create("data/clean", showWarnings = FALSE)
 dir.create("data/private", showWarnings = FALSE)
 exclusions <- list()
@@ -99,7 +99,7 @@ nearest_site <- function(lat, lon, max_km = 1) {
   map2_chr(lat, lon, function(a, b) {
     if (is.na(a) || is.na(b)) return(NA_character_)
     km <- 111.2 * sqrt((site_coords$lat0 - a)^2 +
-                       ((site_coords$lon0 - b) * cos(a * pi / 180))^2)
+                         ((site_coords$lon0 - b) * cos(a * pi / 180))^2)
     if (min(km) <= max_km) site_coords$site_std[which.min(km)] else NA_character_
   })
 }

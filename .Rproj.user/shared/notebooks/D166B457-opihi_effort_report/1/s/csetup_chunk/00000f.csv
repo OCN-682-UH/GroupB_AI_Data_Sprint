@@ -1,0 +1,6 @@
+"0","#| include: false"
+"0","# Rebuild every clean file from data/raw so the report is reproducible end-to-end"
+"0","source(""scripts/01_build_master.R"")"
+"2","Error in file(filename, ""r"", encoding = encoding) : 
+  cannot open the connection
+"

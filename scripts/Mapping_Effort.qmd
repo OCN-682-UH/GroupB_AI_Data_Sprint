@@ -1,0 +1,144 @@
+---
+title: "Mapping_Effort"
+format: html
+author: "Mano'ike Delude"
+---
+
+# Mapping Inferred Effort by Site over Years
+
+0\) Libraries
+
+```{r}
+#| message: false
+library(tidyverse)
+library(rnaturalearth)
+library(sf)
+library(ggplot2)
+library(plotly)
+library(htmlwidgets)
+library(lubridate)
+library(here)
+```
+
+1\) Prepping to join Quad_master, and Survey_Effort together\
+
+We do this to join coordinates from Survey_Efforts to the site scores in Quad_master so that we can map years and average effort in a way that makes sense.
+
+```{r}
+#Importing data for merging scores with lat-long, creates a gps key for site names
+checked_prp <- read_csv(here("data/clean/opihi_surveys_effort.csv")) |>
+  select(site_std, latitude, longitude) |> 
+  drop_na()|>
+  group_by(across(everything()))|> 
+  summarise() |> #It was here ran alternate code 
+  #summarise(n = n()) 
+                #in order to find our offending duplicate, which was 1 count of a 2nd Le'ahi
+  
+  ungroup() |> #you need to ungroup to drop specific row #s
+  filter(!row_number() == 21) |> #removing 1 offending Le'ahi group. I think the 'okina was different between those two which is causing downstream issues
+  group_by(across(everything()))
+  
+quad_master <- read_csv(here("data/clean/opihi_quadrats_master.csv"))
+```
+
+2\) Marrying the Two Dataframes
+
+```{r}
+#joins the key for site names with lat/long!
+effort_map <- left_join(quad_master,
+                       checked_prp, by = "site_std",
+                       ) |>
+              mutate(year = year(as.Date(date))) |> #extract Years from date column, visualizing by day isn't pretty
+              group_by(year, site_std) |>
+              summarise(mean_year_score = mean(total_points), #averages the score across a year and site
+              latitude = first(latitude), #first() reduces noise from possible joining errors, also joins the columns to keep them safe from the drop step
+              longitude = first(longitude),
+              .groups = "drop") |> #drop columns that aren't grouped
+              filter(!is.na(latitude) & !is.na(longitude)) #remove any observations that have NAs to keep our map clean
+
+```
+
+3\) Assembling the Map Polygon (Gemini Assisted)
+
+```{r}
+# 1. Get polygon data for the Hawaiian Islands (WGS84 EPSG:4326)
+hawaii_sf <- ne_states(country = "United States of America", returnclass = "sf") %>%
+  filter(name == "Hawaii")
+
+# Define spatial bounding box around the main Hawaiian Islands
+hawaii_bbox <- c(xmin = -160.5, xmax = -154.5, ymin = 18.8, ymax = 22.5)
+
+# 2. Build the ggplot map
+p <- ggplot() +
+  # Map layer: Polygon of Major Hawaiian Islands
+  geom_sf(data = hawaii_sf, fill = "gray90", color = "gray50", size = 0.3) +
+  # Data layer: Site dots with year frames for animation
+  geom_point(
+    data = effort_map,
+    aes(
+      x = longitude,
+      y = latitude,
+      fill = mean_year_score,
+      frame = year,
+      text = paste0(
+        "Site: ", site_std, "<br>",
+        "Year: ", year, "<br>",
+        "Mean Score: ", round(mean_year_score, 2)
+      )
+    ),
+    shape = 21,
+    color = "black",
+    size = 4,
+    stroke = 0.5
+  ) +
+  # Color scale setup
+  scale_fill_viridis_c(option = "viridis", name = "Mean Score") +
+  # Restrict coordinates to the main island range
+  coord_sf(
+    xlim = c(hawaii_bbox["xmin"], hawaii_bbox["xmax"]),
+    ylim = c(hawaii_bbox["ymin"], hawaii_bbox["ymax"]),
+    expand = FALSE
+  ) +
+  theme_minimal() +
+#mmd: brute forcing grid, tick, and label removal, we don't need to see the actual coords of sites  
+  theme(    
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+#mmd: filling the background with a globe-y blue
+    panel.background = element_rect(fill ="#D0E6F6", color = NA),
+    plot.background  = element_rect(fill = "#D0E6F6", color = NA),
+  ) +
+  labs(
+    title = "Average Effort Across Sites"
+  )
+
+p #inspect your polygon
+```
+
+4\) Passing the Polygon to ggplotly For HTML assembly
+
+```{r}
+# 3. Convert ggplot to animated Plotly widget
+widget <- ggplotly(p, tooltip = "text") %>%
+
+#mmd: adding in a section to color the backgrounds, gotta double up on this just to be sure plotly plays nice  
+  layout(
+    paper_bgcolor = "#D0E6F6",
+    plot_bgcolor  = "#D0E6F6"
+  ) |>
+  animation_opts(frame = 1000, transition = 300, redraw = TRUE) %>%
+  animation_slider(currentvalue = list(prefix = "Year: ", font = list(color = "black")))
+
+# 4. Save the widget to an HTML file
+saveWidget(widget, file = "hawaii_effort_map.html", selfcontained = TRUE)
+```
+
+5\) Inspecting Output
+
+```{r}
+widget
+```

@@ -13,14 +13,25 @@
   teacher and contact names, were uploaded to the AI tool before we noticed the guardrail
   "do not upload teacher identifiers to an external AI system". From now on we only share
   de-identified outputs (`data/clean/`) or column headers with AI tools.
+  
+* **Tool:** Gemini (Google) Configured model: `3.8 Flash`.
+* **Used for:** Answer quick questions about code syntax, and to build the
+  base for the ggplotly widget.
+* **Data-stewardship note:** data was already sanitized before this step
 
 ## Selected prompts
 
+### Claude
 | # | Prompt (summary) | What the AI produced |
 |---|---|---|
 | 1 | Uploaded the assignment PDF + data zip | Inventory of the 4 file layouts, duplicate sources, site-name variants, which question fits the data |
 | 2 | "选 B" (pick Question B), build the effort pipeline | Importers, build script, `check_effort()`, tests, report |
 | 3 | *(teammates: add yours)* | |
+
+### Gemini
+| # | Prompt (summary) | What the AI produced |
+|---|---|---|
+| 1 | Specific instructions on libraries, and which columns to use with sub-functions of those libraries to build an interactive map. | A close to finished interactive map, only needed minor visual edits to make ready |
 
 ## Verification and the AI's mistakes
 
@@ -53,7 +64,10 @@ I selected Question B for our team and produced the first working version of the
 
 ### Manōʻike
 
-*(your contribution, how AI helped or failed, what you personally verified, when you would or would not trust AI code)*
+I was very cautious about uploading unsanitized sheets into an LLM, so we individually tried breaking down the correct phrasing we’d need to accurately describe the .excel files. There are many, many, technical terms that describe excel workbook mechanics that were much more in-depth than I could completely grasp during our sprint. Luckily, Yang got that through.\
+Working backwards from the end, I focused on getting a mockup of a figure, since I knew we would sort by site and year. Using our basic cleaning methods I calculated our “mean effort scores” and did some simple joining. Having more experience with this aspect of the project made it so I could get the interactive map mostly done in one prompt to Gemini (see attached pdf). Afterwards, my questions went into a fresh google tab to look up syntax for the different parts of ggplot/sf/plotly to remove all the axis labels and grid marks, since I normally would miss some and have to google anyway.\
+My main takeaway is that Yang’s use of Claude made much more complex code that did a better job of handling the sheets. Gemini is good for short r queries, but you have to have more background knowledge on what you’re asking to prompt it to do what you need.\
+
 
 ### Gabby
 

@@ -75,7 +75,30 @@ My main takeaway is that Yang’s use of Claude made much more complex code that
 
 # Gabby
 
-*(same four points)*
+## Tools and Disclosure
+
+- **Tool:** Gemini (Google) Configured model: `3.6 Flash`.
+- **Used for:** Initial effort to data cleaning and generating line plot for one of the outputs
+- **Data-stewardship note:** Data was already sanitized / de-identified before plotting step. 
+
+## Selected Prompts
+
+| \# | Selected Prompts | What the AI produced |
+|------------------------|------------------------|------------------------|
+| 1 | User Prompt: “I want to make a plot in R that showcases the number of surveys to the years with each line from the different counties (basing off site_std column), I have to match the site name to the county still, I have a data frame that has the lat and long coordinates of each of the sites as well” | A complete R code pipeline of how to handle the site names with its respective lat and long coordinates dataframe and how to integrate the sf package to the plot. |
+| 2 | (From initial data cleaning) User Prompt: “I have a dataset of 20 excel files (with different #'s of sheets contained in them; some containing graphs/charts within the sheets or that is the whole sheet (no cells). It all looks at intertidal data from different places, like counts of many species per quadrant per transect on different days within the last 20 years. It is very unorganized as the data columns are not the same throughout and how they collected the data differs. It also looks as many data sheets input as you scroll horizontally and there's a lot of cells with empty spaces with a sheet. I want to input all excel sheets/files into R to create one organized data document. I use the here() function for a file path.” | A step-by-step process to set up the file directory, a robust sheet reader function and a batch import pipeline.
+| 3 | (From initial data cleaning) User Prompt: “For one of the lists, I want to combine all the sheets, make them into data frames and combine into one data frame. I want to detect the row names based on certain keywords since each of the sheets have column names that may or not be in the first/ second rows, look for the rows that has date, location etc. and make them the new column names. I want to remove the rows above the actual column names as well. Drop the values that seem to be outside the scope of the columns and drop the sheet_name column since it will be combined at the end. If the sheet doesn't match at least 2 key words then skip the sheet.” | A complete R workflow to dynamically read the sheets on how to read a set of sheets, detecting header hows and drop certain cell values as well as combining into one data frame. |
+
+## Verification and the AI's Mistakes
+
+- (From initial data cleaning) Gemini made the assumption of what was considered a header versus what was a regular data input. For some of the files were structurally good throughout visually expecting them, I even gave AI the common keywords for headers. The code ran, but after inspecting the dataframe, I would find dates, times, and locations values under columns that were not where they should be. 
+- (Plot) Verification was visual for the dataframe, realized there was one site that was not provided for coordinates and resulted in NA in a created data frame. Also, the sf packages were attempted to be integrated to make the plot, but it was not working for me so ultimately I created a tibble of what site was on each county to join the data frame I was using to plot.  
+
+## Reflection
+
+### Gabby
+
+In this project, we all agreed to see how each of us would clean up the data that’ll eventually be used for everyone. First, I manually checked the files to see the structure and the data inputs were for each sheet. I wanted to break them up by structure similarity (like if column headers were actual column headers versus not). I then used Gemini to help create the sequence of functions on how to handle what I was seeing within the Excel files. It ultimately failed despite my efforts of being descriptive of the files without having to upload the sheets. However, I was able to only do the reformatted file pretty decently in terms of it being an organized data frame and having no duplicates. Someone in the group did the whole clean up, therefore I made sure the code could run on my end, visually inspect some of the raw files to the master code’s outputs, and I made one of the outputs (line graph of the number of surveys to the year). I used AI to help create an outline script for the plot to initially get the code for it done, and some aspects of the code helped. I think Gemini was good at making the script for the plot, I only changed the data portion and certain aesthetics. Overall, I would be cautious in trusting AI-generated code. For simple things like creating outlines of the code you already understand then sure, but to clean up a fairly large unorganized dataset, then probably not. 
 
 # Tim
 

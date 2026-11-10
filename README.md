@@ -3,7 +3,7 @@
 OCN 682 / MBIO 612, Fall 2026: AI-Assisted Community Data Sprint
 Team B: Manōʻike, Gabby, Tim, Yang An
 
-**Published report:** https://ocn-682-uh.github.io/GroupB_AI_Data_Sprint/opihi_effort_report.html
+**Published report:** Click [HERE](https://01a1c6cc-572f-2f79-f8bd-dc0691fb4d09.share.connect.posit.cloud/)
 
 **Question.** How does sampling effort (survey dates, transects, quadrats) differ among
 OPIHI sites and years, which site-years are most complete, and how much coverage is left

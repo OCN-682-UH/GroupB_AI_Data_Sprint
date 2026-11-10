@@ -119,7 +119,7 @@ p <- ggplot() +
 p #inspect your polygon
 ```
 
-4\) Passing the Polygon to ggplotly For HTML assembly
+4\) Passing the Polygon to ggplotly For HTML assembly (Gemini Assisted)
 
 ```{r}
 # 3. Convert ggplot to animated Plotly widget
@@ -134,7 +134,7 @@ widget <- ggplotly(p, tooltip = "text") %>%
   animation_slider(currentvalue = list(prefix = "Year: ", font = list(color = "black")))
 
 # 4. Save the widget to an HTML file
-saveWidget(widget, file = "hawaii_effort_map.html", selfcontained = TRUE)
+saveWidget(widget, file = here("figures", "hawaii_effort_map.html"), selfcontained = TRUE)
 ```
 
 5\) Inspecting Output

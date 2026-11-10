@@ -9,7 +9,7 @@ editor_options:
 
 > Draft written during the first AI session (Oct 20). Each teammate should add the prompts they use themselves and their own manual checks.
 
-#Yang An
+# Yang An
 
 ## Tools and disclosure
 
@@ -23,7 +23,6 @@ editor_options:
 |------------------------|------------------------|------------------------|
 | 1 | Uploaded the assignment PDF + data zip | Inventory of the 4 file layouts, duplicate sources, site-name variants, which question fits the data |
 | 2 | "选 B" (pick Question B), build the effort pipeline | Importers, build script, `check_effort()`, tests, report |
-| 3 | *(teammates: add yours)* |  |
 
 ## Verification and the AI's mistakes
 
@@ -78,6 +77,29 @@ My main takeaway is that Yang’s use of Claude made much more complex code that
 
 *(same four points)*
 
+# Tim
+
+## Tools and disclosure
+
+- **Tool:** Claude (Anthropic), used through the Claude app as a coding agent that could run R in a sandbox. Configured model: `claude-opus-5-5`.
+- **Used for:** inventorying the 20 workbooks, writing the importers, cleaning script, `check_effort()`, tests, the Quarto report and the first draft of this log.
+- **Data-stewardship note:** in this first session the raw workbooks, which include student, teacher and contact names, were uploaded to the AI tool before we noticed the guardrail "do not upload teacher identifiers to an external AI system". From now on we only share de-identified outputs (`data/clean/`) or column headers with AI tools.
+
+## Selected prompts
+
+| \# | Prompt (summary) | Issue / Error | Root Cause | Fix Applied |
+|------------------------|------------------------|------------------------|
+| 1 | Refactor and generalize `01_build_master.R` for unknown/messy Excel workbooks. | Error in group_by(): Column file_name is not found. Column sheet_name is not found. | standardize_generic_columns() regex patterns renamed or stripped tracking metadata attached by read_single_sheet(). | Updated column standardization to freeze and protect tracking attributes (file_name, sheet_name, raw_row_id, header_row_found). |
+| 2 |  |  |  |  |
+| 3 |  |  |  |  |
+| 4 |  |  |  |  |
+| 5 |  |  |  |  |
+
+## Verification and the AI's mistakes
+
+## Reflection
+
 ### Tim
 
-*(same four points)*
+
+

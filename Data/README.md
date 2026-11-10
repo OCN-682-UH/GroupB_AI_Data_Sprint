@@ -1,4 +1,4 @@
-# data/raw
+# Data
 
 Put the 20 original OPIHI `.xlsx` workbooks here, unchanged (the "AI data" folder from the course).
 They are git-ignored because they contain student, teacher and contact names.

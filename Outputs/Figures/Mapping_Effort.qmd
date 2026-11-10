@@ -26,7 +26,7 @@ We do this to join coordinates from Survey_Efforts to the site scores in Quad_ma
 
 ```{r}
 #Importing data for merging scores with lat-long, creates a gps key for site names
-checked_prp <- read_csv(here("data/clean/opihi_surveys_effort.csv")) |>
+checked_prp <- read_csv(here("Outputs/Cleaned Data/opihi_surveys_effort.csv")) |>
   select(site_std, latitude, longitude) |> 
   drop_na()|>
   group_by(across(everything()))|> 
@@ -38,7 +38,7 @@ checked_prp <- read_csv(here("data/clean/opihi_surveys_effort.csv")) |>
   filter(!row_number() == 21) |> #removing 1 offending Le'ahi group. I think the 'okina was different between those two which is causing downstream issues
   group_by(across(everything()))
   
-quad_master <- read_csv(here("data/clean/opihi_quadrats_master.csv"))
+quad_master <- read_csv(here("Outputs/Cleaned Data/opihi_quadrats_master.csv"))
 ```
 
 2\) Marrying the Two Dataframes

@@ -15,7 +15,7 @@ site_key <- function(x) {
 
 # Join the hand-curated lookup table; any label without a match is returned
 # as-is with confidence "unmatched" so it shows up in the checks.
-standardise_site <- function(df, lookup_path = "data/lookup/site_lookup.csv") {
+standardise_site <- function(df, lookup_path = "Outputs/Site Lookup/site_lookup.csv") {
   lk <- readr::read_csv(lookup_path, show_col_types = FALSE)
   df |>
     mutate(site_key = site_key(site_raw)) |>

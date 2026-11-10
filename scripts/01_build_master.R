@@ -1,25 +1,24 @@
 # 01_build_master.R ---------------------------------------------------------
 # Build the clean OPIHI sampling-effort master files from the raw workbooks.
-# Run from the project root:   Rscript scripts/01_build_master.R
+# Run from the project root:   Rscript Scripts/01_build_master.R
 #
-# Inputs  : data/raw/*.xlsx (never edited), data/lookup/site_lookup.csv
-# Outputs : data/clean/opihi_surveys_effort.csv   one row per survey (field trip)
-#           data/clean/opihi_quadrats_master.csv  one row per quadrat
-#           data/clean/exclusions_log.csv         every record left out + reason
-#           data/clean/duplicates_log.csv         every duplicate removed + kept copy
-#           data/clean/crosscheck_compiled.csv    raw-derived vs compiled quadrat counts
-#           data/private/id_key.csv               codes -> real names (NOT for GitHub)
+# Inputs  : Data/*.xlsx (never edited), Outputs/Site Lookup/site_lookup.csv
+# Outputs : Outputs/Cleaned Data/opihi_surveys_effort.csv   one row per survey (field trip)
+#           Outputs/Cleaned Data/opihi_quadrats_master.csv  one row per quadrat
+#            Outputs/Cleaned Data/exclusions_log.csv         every record left out + reason
+#            Outputs/Cleaned Data/duplicates_log.csv         every duplicate removed + kept copy
+#            Outputs/Cleaned Data/crosscheck_compiled.csv    raw-derived vs compiled quadrat counts
 
 suppressPackageStartupMessages({
-  source("R/import_long.R")     # also loads import_wide.R
-  source("R/clean_helpers.R")
-  source("R/check_effort.R")
+  source("Scripts/Functions/import_long.R")     # also loads import_wide.R
+  source("Scripts/Functions/clean_helpers.R")
+  source("Scripts/Functions/check_effort.R")
   library(readr)
 })
 
-raw_dir <- "data/raw/AI data"
-dir.create("data/clean", showWarnings = FALSE)
-dir.create("data/private", showWarnings = FALSE)
+raw_dir <- "Data/AI data"
+dir.create("Outputs/Cleaned Data", showWarnings = FALSE)
+dir.create("Outputs/Private ID", showWarnings = FALSE)
 exclusions <- list()
 log_excl <- function(df, reason) {
   exclusions[[length(exclusions) + 1]] <<- df |> mutate(reason = reason, .before = 1)
@@ -270,7 +269,7 @@ key_school <- make_id_key(c(trips_w$school_raw, comp_only$school_raw,
 key_team   <- make_id_key(q_long$team_raw, "TM")
 write_csv(bind_rows(mutate(key_school, type = "school"),
                     mutate(key_team, type = "data_entry_person")),
-          "data/private/id_key.csv")
+          "Outputs/Private ID/id_key.csv")
 code_school <- function(x) key_school$id[match(str_squish(x), key_school$raw_name)]
 
 # ---------------------------------------------------------------------------
@@ -353,11 +352,11 @@ duplicates <- bind_rows(
                          date, site_std, kept = kept_ref, dup_type)
 )
 
-write_csv(checked, "data/clean/opihi_surveys_effort.csv", na = "")
-write_csv(quad_master, "data/clean/opihi_quadrats_master.csv", na = "")
-write_csv(bind_rows(exclusions), "data/clean/exclusions_log.csv", na = "")
-write_csv(duplicates, "data/clean/duplicates_log.csv", na = "")
-write_csv(crosscheck, "data/clean/crosscheck_compiled.csv", na = "")
+write_csv(checked, "Outputs/Cleaned Data/opihi_surveys_effort.csv", na = "")
+write_csv(quad_master, "Outputs/Cleaned Data/opihi_quadrats_master.csv", na = "")
+write_csv(bind_rows(exclusions), "Outputs/Cleaned Data/exclusions_log.csv", na = "")
+write_csv(duplicates, "Outputs/Cleaned Data/duplicates_log.csv", na = "")
+write_csv(crosscheck, "Outputs/Cleaned Data/crosscheck_compiled.csv", na = "")
 
 message(sprintf("surveys: %d | quadrats: %d | duplicates removed: %d | records excluded: %d",
                 nrow(checked), nrow(quad_master), nrow(duplicates),

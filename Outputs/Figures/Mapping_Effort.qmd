@@ -134,7 +134,7 @@ widget <- ggplotly(p, tooltip = "text") %>%
   animation_slider(currentvalue = list(prefix = "Year: ", font = list(color = "black")))
 
 # 4. Save the widget to an HTML file
-saveWidget(widget, file = here("figures", "hawaii_effort_map.html"), selfcontained = TRUE)
+saveWidget(widget, file = here("Outputs", "figures", "hawaii_effort_map.html"), selfcontained = TRUE)
 ```
 
 5\) Inspecting Output

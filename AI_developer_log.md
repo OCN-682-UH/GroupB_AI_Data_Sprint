@@ -3,6 +3,8 @@
 > Draft written during the first AI session (Oct 20). Each teammate should add the
 > prompts they use themselves and their own manual checks.
 
+#Yang An
+
 ## Tools and disclosure
 
 * **Tool:** Claude (Anthropic), used through the Claude app as a coding agent that could run R
@@ -13,25 +15,14 @@
   teacher and contact names, were uploaded to the AI tool before we noticed the guardrail
   "do not upload teacher identifiers to an external AI system". From now on we only share
   de-identified outputs (`data/clean/`) or column headers with AI tools.
-  
-* **Tool:** Gemini (Google) Configured model: `3.8 Flash`.
-* **Used for:** Answer quick questions about code syntax, and to build the
-  base for the ggplotly widget.
-* **Data-stewardship note:** data was already sanitized before this step
 
 ## Selected prompts
 
-### Claude
 | # | Prompt (summary) | What the AI produced |
 |---|---|---|
 | 1 | Uploaded the assignment PDF + data zip | Inventory of the 4 file layouts, duplicate sources, site-name variants, which question fits the data |
 | 2 | "选 B" (pick Question B), build the effort pipeline | Importers, build script, `check_effort()`, tests, report |
 | 3 | *(teammates: add yours)* | |
-
-### Gemini
-| # | Prompt (summary) | What the AI produced |
-|---|---|---|
-| 1 | Specific instructions on libraries, and which columns to use with sub-functions of those libraries to build an interactive map. | A close to finished interactive map, only needed minor visual edits to make ready |
 
 ## Verification and the AI's mistakes
 
@@ -49,18 +40,34 @@ source, the compiled trip sheet (*OPIHI Data – Reformated*, "Actual Quadrats s
 **Result of the cross-check after fixes:** 225 trips appear in both sources; 219 agree
 exactly. The rest are listed in the report (section 3).
 
-### Manual checks to do (assign to teammates)
-
-- [ ] Pick 3 random surveys from `opihi_surveys_effort.csv` and recount quadrats in Excel.
-- [ ] Open 5 rows of `duplicates_log.csv` and confirm the kept and removed rows are the same quadrat.
-- [ ] Confirm the site lookup choices marked `check` with Dr. Philippoff.
-- [ ] Run `Rscript tests/test_check_effort.R` on your own computer.
-
-## Individual reflections
+## Reflection
 
 ### Yang An
 
 I selected Question B for our team and produced the first working version of the full pipeline, using Claude (Anthropic) as a coding agent. I inventoried the 20 OPIHI workbooks and their four different layouts, then directed the AI to write the importers, the cleaning script that builds the de-identified survey-effort table and quadrat master (with exclusion and duplicate logs and a data dictionary), the reusable `check_effort()` function with its tests, and the two draft figures in the Quarto report. AI was most helpful with the tedious parsing of inconsistent spreadsheet layouts, but its first version was wrong in five ways that only surfaced through verification: it merged an unlabelled 2020 data block into the Wawaloli trip, silently dropped trips that had metadata but no quadrat data, assumed the 2019 site names were present when most were blank, used a duplicate key so loose that distinct quadrats were deleted, and missed near-duplicate rows in the "Copy of" 2024 file. These errors were caught by cross-checking quadrat counts derived from the raw sheets against the independent compiled trip sheet (219 of 225 trips now agree exactly) and by going back to the raw sheet for every mismatch. I personally recounted the quadrats for two surveys (2005-05-01 Kalaeloa and 2007-05-15 Hilo Yacht Club) directly in the raw Excel files, and both matched the clean table. I also made a data-stewardship mistake: I uploaded raw workbooks containing student and teacher names to the AI before noticing the guardrail, and since then we share only de-identified outputs. I would trust AI-generated code for boilerplate and plotting once tests pass, but not for data-cleaning logic whose errors produce plausible-looking numbers, unless its output has been checked against an independent source and a small hand-checked example.
+
+# Mano'ike Delude
+
+## Tools and Disclosure
+
+* **Tool:** Gemini (Google) Configured model: `3.8 Flash`.
+* **Used for:** Answer quick questions about code syntax, and to build the
+  base for the ggplotly widget.
+* **Data-stewardship note:** data was already sanitized before this step, one Le'ahi visit was excluded from the map because I wasn't able to figure out the merging conflict
+
+## Selected Prompts
+
+### Gemini
+| # | Prompt (summary) | What the AI produced |
+|---|---|---|
+| 1 | Specific instructions on libraries, and which columns to use with sub-functions of those libraries to build an interactive map. | A close to finished interactive map, only needed minor visual edits to make ready |
+
+## Verification and the AI's Mistakes
+
+Verification was visual (did the data frame accurately get transposed into an image), and the code is similar to ones I've written in the past.\
+Gemini left in, and even labeled Latitude and Longitute in the original iteration, which is less of a mistake and more a limitation of my prompting.
+
+## Reflection
 
 ### Manōʻike
 

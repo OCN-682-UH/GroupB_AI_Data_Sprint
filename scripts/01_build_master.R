@@ -10,9 +10,9 @@
 #            Outputs/Cleaned Data/crosscheck_compiled.csv    raw-derived vs compiled quadrat counts
 
 suppressPackageStartupMessages({
-  source("Scripts/Functions/import_long.R")     # also loads import_wide.R
-  source("Scripts/Functions/clean_helpers.R")
-  source("Scripts/Functions/check_effort.R")
+  source("scripts/Functions/import_long.R")     # also loads import_wide.R
+  source("scripts/Functions/clean_helpers.R")
+  source("scripts/Functions/check_effort.R")
   library(readr)
 })
 

@@ -9,7 +9,7 @@
 #   * names typed into the Date column (e.g. a person's name)
 #   * all-zero template rows (no points recorded)
 
-source("Scripts/Functions/import_wide.R")   # for excel_to_date(), excel_to_hhmm()
+source("scripts/Functions/import_wide.R")   # for excel_to_date(), excel_to_hhmm()
 
 find_header_row <- function(x) {
   which(apply(x[1:min(6, nrow(x)), ], 1,

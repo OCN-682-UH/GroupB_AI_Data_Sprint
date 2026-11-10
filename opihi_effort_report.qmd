@@ -1,6 +1,6 @@
 ---
 title: "OPIHI Sampling Effort & Data Quality"
-subtitle: "OCN 682 / MBIO 612 AI Data Sprint — Question B (draft v0.1)"
+subtitle: "OCN 682 / MBIO 612 AI Data Sprint — Question B"
 author: "Team B: Manōʻike, Gabby, Tim, Yang An"
 date: today
 format:
@@ -17,7 +17,7 @@ execute:
 ```{r setup}
 #| include: false
 # Rebuild every clean file from Outputs/Cleaned Data so the report is reproducible end-to-end
-source("Scripts/01_build_master.R")
+source("scripts/01_build_master.R")
 library(ggplot2); library(knitr); library(kableExtra); library(forcats)
 surveys <- read_csv("Outputs/Cleaned Data/opihi_surveys_effort.csv", show_col_types = FALSE)
 quads   <- read_csv("Outputs/Cleaned Data/opihi_quadrats_master.csv", show_col_types = FALSE)
@@ -53,15 +53,15 @@ surveys |>
 
 ## 3. Cleaning decisions
 
-Raw files in `data/raw/` are never edited. Every rule below is coded in `scripts/01_build_master.R`, and every removed record is written to a log.
+Raw files in `Data/AI data` are never edited. Every rule below is coded in `scripts/01_build_master.R`, and every removed record is written to a log.
 
-1.  **Different layouts → one schema.** The 2004–2020 files store one trip per column block. The 2024–2026 files store one quadrat per row. The 2026 Waipuʻilani class sheet pools 11 quadrats × 25 points per group. Each layout has its own importer (`R/import_wide.R`, `R/import_long.R`).
+1.  **Different layouts → one schema.** The 2004–2020 files store one trip per column block. The 2024–2026 files store one quadrat per row. The 2026 Waipuʻilani class sheet pools 11 quadrats × 25 points per group. Each layout has its own importer (`scripts/Functions/import_wide.R`, `scripts/Function/import_long.R`).
 2.  **Duplicates.** `r nrow(dups)` duplicate records were removed (`r sum(dups$dup_type == "exact copy")` exact copies and `r sum(dups$dup_type != "exact copy")` near-copies in *Copy of OPIHI 2024 datasheet*, where taxon columns were renamed). The compiled 2004–2020 sheet (*OPIHI Data – Reformated*) repeats the yearly files. It is used only to cross-check counts and to add the `r sum(surveys$data_era == "2004-2020 compiled sheet only")` trips that have no raw yearly block.
-3.  **Site names.** Site labels were normalised by removing ʻokina and macrons and lower-casing, then mapped with `data/lookup/site_lookup.csv`, which prefers Hawaiian names (Diamond Head → Lēʻahi, Sand Island → Mauliola, Barbers Point/“Kalealoa” → Kalaeloa, `` `Ewa ``/Ewa Beach → ʻEwa Beach). Uncertain merges are kept separate and marked `check`.
+3.  **Site names.** Site labels were normalised by removing ʻokina and macrons and lower-casing, then mapped with `Outputs/Site Lookup/lookup/site_lookup.csv`, which prefers Hawaiian names (Diamond Head → Lēʻahi, Sand Island → Mauliola, Barbers Point/“Kalealoa” → Kalaeloa, ʻEwa/Ewa Beach → ʻEwa Beach). Uncertain merges are kept separate and marked `check`.
 4.  **Lost site names (2019).** Most 2019 blocks have an empty site cell or one that literally says “Location”. `r sum(grepl("compiled", surveys$site_recovery))` were recovered from the compiled sheet (same date + school) and `r sum(grepl("coordinates", surveys$site_recovery))` from the nearest known site within 1 km of their coordinates.
 5.  **Excel damage.** Excel turned “# Quad/T” entries such as “10-12” into dates (serial numbers above 45,000). These are set to NA, and the raw value is kept. Times entered on a 12-hour clock (stop “01:10” for 13:10) are corrected when duration is computed.
 6.  **Excluded rows** (`r nrow(excl)` total). The table below lists the reasons.
-7.  **Teacher and student names.** Schools and data-entry people are replaced by codes (`SCH###`, `TM###`). The code key is written only to `data/private/`, which is git-ignored and goes to Dr. Philippoff.
+7.  **Teacher and student names.** Schools and data-entry people are replaced by codes (`SCH###`, `TM###`). The code key is written only to `Outputs/Private ID`, which is git-ignored and goes to Dr. Philippoff.
 
 ### **Exclusions Log**
 
@@ -103,7 +103,7 @@ cc |>
 
 Here is a preview of our cleaned master data looking at survey effort with completeness being quantified by what is described in the Metrics.
 
-The full files are `data/clean/opihi_surveys_effort.csv` (`r nrow(surveys)` surveys) and `data/clean/opihi_quadrats_master.csv` (`r format(nrow(quads), big.mark = ",")` quadrats). Every column is described in `data/data_dictionary.csv`.
+The full files are `Outputs/Cleaned Data/opihi_surveys_effort.csv` (`r nrow(surveys)` surveys) and `Outputs/Cleaned Data/opihi_quadrats_master.csv` (`r format(nrow(quads), big.mark = ",")` quadrats). Every column is described in `Outputs/Cleaned Data/data_dictionary.csv`.
 
 ```{r preview}
 surveys |>
@@ -120,7 +120,7 @@ surveys |>
 
 ## 5. Reusable function: `check_effort()`
 
-`check_effort()` (in `R/check_effort.R`) takes a survey table and returns the same rows with planned quadrats, completeness, ten `flag_*` columns and an `effort_status`. All thresholds are arguments, so OPIHI can run it on new datasheets. `tests/test_check_effort.R` checks every rule on small hand-made cases.
+`check_effort()` (in `scripts/Functions/check_effort.R`) takes a survey table and returns the same rows with planned quadrats, completeness, ten `flag_*` columns and an `effort_status`. All thresholds are arguments, so OPIHI can run it on new datasheets. `scripts/tests/test_check_effort.R` checks every rule on small hand-made cases.
 
 ```{r function-demo}
 #| code-fold: false
@@ -153,7 +153,7 @@ sy |>
   theme_minimal(base_size = 12) +
   theme(panel.grid = element_blank(), legend.position = "top",
         axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave("figures/fig1_site_year_coverage.png", width = 10, height = 9, dpi = 200, bg = "white")
+ggsave("Outputs/Figures/fig1_site_year_coverage.png", width = 10, height = 9, dpi = 200, bg = "white")
 ```
 
 ```{r fig-filtering}
@@ -249,7 +249,7 @@ ggplot(county_counts_complete, aes(x = year, y = n_surveys, color = county, grou
   )
 
 #Save plot
-ggsave("figures/county_survey.png", width = 10)
+ggsave("Outputs/Figures/county_survey.png", width = 10)
 ```
 
 ```{r fig-Completeness}
@@ -371,7 +371,6 @@ saveWidget(widget, file = "hawaii_effort_map.html", selfcontained = TRUE)
 widget
 
 ```
-
 
 These patterns are descriptive only. No statistical tests were run.
 

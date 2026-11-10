@@ -88,7 +88,7 @@ My main takeaway is that Yang’s use of Claude made much more complex code that
 ## Selected prompts
 
 | \# | Prompt (summary) | Issue / Error | Root Cause | Fix Applied |
-|------------------------|------------------------|------------------------|
+|------------------------|------------------------|------------------------|------------------------|------------------------|
 | 1 | Refactor and generalize `01_build_master.R` for unknown/messy Excel workbooks. | Error in group_by(): Column file_name is not found. Column sheet_name is not found. | standardize_generic_columns() regex patterns renamed or stripped tracking metadata attached by read_single_sheet(). | Updated column standardization to freeze and protect tracking attributes (file_name, sheet_name, raw_row_id, header_row_found). |
 | 2 |  |  |  |  |
 | 3 |  |  |  |  |

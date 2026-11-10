@@ -13,17 +13,17 @@ as stricter quality filters are applied?
 
 ```
 opihi_effort_report.qmd     Quarto report (renders the whole workflow)
-scripts/01_build_master.R   raw workbooks -> clean master files + logs
-R/import_wide.R             importer for the 2004-2020 column-block workbooks
-R/import_long.R             importer for the 2024-2026 row-per-quadrat workbooks
-R/clean_helpers.R           site-name normalising, de-identification, unit parsing
-R/check_effort.R            reusable function check_effort() + summarise_site_year()
-tests/test_check_effort.R   tests for check_effort() on hand-made cases
-data/raw/                   original workbooks (NOT in git; see data/raw/README.md)
-data/lookup/site_lookup.csv site-name lookup (English/Hawaiian/spelling variants)
-data/clean/                 outputs: survey effort table, quadrat master, logs
-data/data_dictionary.csv    description of every output column
-figures/                    the two report figures (PNG)
+Scripts/01_build_master.R   raw workbooks -> clean master files + logs
+Scripts/Functions/import_wide.R             importer for the 2004-2020 column-block workbooks
+Scripts/Functions/import_long.R             importer for the 2024-2026 row-per-quadrat workbooks
+Scripts/Functions/clean_helpers.R           site-name normalising, de-identification, unit parsing
+Scripts/Functions/check_effort.R            reusable function check_effort() + summarise_site_year()
+Scripts/Tests/test_check_effort.R   tests for check_effort() on hand-made cases
+Data/                  original workbooks (NOT in git; see data/raw/README.md)
+Outputs/Site Lookup/site_lookup.csv site-name lookup (English/Hawaiian/spelling variants)
+Outputs/Cleaned Data                 outputs: survey effort table, quadrat master, logs
+Outputs/Cleaned Data/data_dictionary.csv    description of every output column
+Outputs/Figures                    the two report figures (PNG)
 AI_developer_log.md         group AI Developer Log
 ```
 
